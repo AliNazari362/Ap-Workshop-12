@@ -39,6 +39,8 @@ public class GameController {
     private HashMap<Integer, GridPane> cells;
     @FXML
     private Button soundBtn;
+    @FXML
+    private Button resetBtn;
 
 
     private int timeReminding;
@@ -51,6 +53,7 @@ public class GameController {
         cells = new HashMap<>();
         updateText();
         BackgroundMediaPlayer.getInstance().setSoundButton(soundBtn);
+        configResetBtn();
 
         goToHome.setOnMouseClicked(e -> {
             SceneManager.setScene("/start.fxml");
@@ -64,6 +67,23 @@ public class GameController {
             }
         }
         game();
+    }
+
+    private void configResetBtn() {
+        resetBtn.setOnMouseClicked(e -> {
+            logic.restToDefault();
+            for (Node patentNode : gridGameBox.getChildren()) {
+                if(patentNode instanceof GridPane patentGrid) {
+                    for (Node node : patentGrid.getChildren()) {
+                        if (node instanceof Circle circle) circle.setVisible(false);
+                        if (node instanceof Line line) line.setVisible(false);
+
+                        timeReminding = 60;
+                        timerText.setText("01:00");
+                    }
+                }
+            }
+        });
     }
 
     private void timer() {

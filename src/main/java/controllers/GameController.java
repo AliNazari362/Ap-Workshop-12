@@ -1,5 +1,6 @@
 package controllers;
 
+import config.BackgroundMediaPlayer;
 import config.SceneManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -8,6 +9,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
@@ -18,6 +21,7 @@ import logic.ResultStatus;
 import logic.TurnStatus;
 
 import java.awt.*;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -33,6 +37,9 @@ public class GameController {
     private GridPane gridGameBox;
     @FXML
     private HashMap<Integer, GridPane> cells;
+    @FXML
+    private Button soundBtn;
+
 
     private int timeReminding;
     private Logic logic;
@@ -41,9 +48,9 @@ public class GameController {
     public void initialize() {
         logic = Logic.getInstance();
         logic.startGame();
-        updateText();
-
         cells = new HashMap<>();
+        updateText();
+        BackgroundMediaPlayer.getInstance().setSoundButton(soundBtn);
 
         goToHome.setOnMouseClicked(e -> {
             SceneManager.setScene("/start.fxml");

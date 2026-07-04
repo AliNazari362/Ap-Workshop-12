@@ -4,6 +4,7 @@ import config.SceneManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import logic.Logic;
@@ -23,7 +24,10 @@ public class ResultController {
 
     @FXML
     public void initialize() {
-        exitBtn.setOnMouseClicked(e -> System.exit(0));
+        exitBtn.setOnMouseClicked(e -> {
+            System.exit(0);
+        });
+
         Logic logic = Logic.getInstance();
         ResultStatus status = logic.getResultStatus();
         switch (status) {

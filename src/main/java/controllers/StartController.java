@@ -1,6 +1,8 @@
 package controllers;
 
+import config.BackgroundMediaPlayer;
 import config.SceneManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
@@ -13,7 +15,9 @@ public class StartController {
 
     @FXML
     public void initialize() {
-
+        Platform.runLater(new Thread(() -> {
+            BackgroundMediaPlayer.getInstance().initMusic();
+        }));
         goToLogin.setOnMouseClicked(e -> SceneManager.setScene("/login.fxml"));
         exitBtn.setOnMouseClicked(e -> System.exit(0));
     }

@@ -23,7 +23,7 @@
         -fx-background-color: radial-gradient(center 50% 50%, radius 70%, #2a2a2a, #0a0a0a);
     </style>
 
-    <Text layoutX="540" layoutY="100.0" text="00:30" textAlignment="CENTER" wrappingWidth="200.0">
+    <Text fx:id="timerText" layoutX="540" layoutY="100.0" textAlignment="CENTER" wrappingWidth="200.0">
         <fill>
             <LinearGradient endX="1.0" endY="1.0">
                 <stops>

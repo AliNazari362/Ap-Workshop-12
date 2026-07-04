@@ -5,13 +5,11 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import logic.Logic;
@@ -22,12 +20,13 @@ import logic.TurnStatus;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 
 public class GameController {
 
     @FXML
     private Text playerTag;
+    @FXML
+    private Text timerText;
     @FXML
     private Button goToHome;
     @FXML
@@ -35,6 +34,7 @@ public class GameController {
     @FXML
     private HashMap<Integer, GridPane> cells;
 
+    private int timeReminding;
     private Logic logic;
 
     @FXML
@@ -49,6 +49,7 @@ public class GameController {
             SceneManager.setScene("/start.fxml");
             logic.restToDefault();
         });
+        timer();
         for (Node node : gridGameBox.getChildren()) {
             if (node instanceof GridPane cell) {
                 cell.setOnMouseClicked(e -> game(e));
@@ -56,6 +57,25 @@ public class GameController {
             }
         }
         game();
+    }
+
+    private void timer() {
+        timeReminding = 60;
+        timerText.setText("01:00");
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            timeReminding--;
+            timerText.setText("00:%02d".formatted(timeReminding));
+
+            if (timeReminding <= 0) {
+                logic.setResultStatus(ResultStatus.TIME_OVER);
+                goToResult();
+                logic.restToDefault();
+                timeReminding = 60;
+                timerText.setText("01:00");
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 
     private void updateText() {

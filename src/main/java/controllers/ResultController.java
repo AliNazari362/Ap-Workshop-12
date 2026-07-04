@@ -1,6 +1,7 @@
 package controllers;
 
 import config.SceneManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Paint;
@@ -22,12 +23,14 @@ public class ResultController {
 
     @FXML
     public void initialize() {
+        exitBtn.setOnMouseClicked(e -> System.exit(0));
         Logic logic = Logic.getInstance();
         ResultStatus status = logic.getResultStatus();
         switch (status) {
             case WIN -> setText("You win!", "yellow");
             case LOSE -> setText("You lose!", "red");
             case NO_RESULT -> setText("No Win, No lose!", "green");
+            case TIME_OVER -> setText("Timeout!", "green");
         }
         goToHome.setOnMouseClicked(e -> {
             SceneManager.setScene("/start.fxml");
@@ -37,7 +40,6 @@ public class ResultController {
             SceneManager.setScene("/game.fxml");
             logic.restToDefault();
         });
-        exitBtn.setOnMouseClicked(e -> System.exit(0));
     }
 
     private void setText(String text, String color) {

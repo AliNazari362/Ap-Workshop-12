@@ -4,6 +4,7 @@ import config.SceneManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import logic.Logic;
 
 public class LoginController {
 
@@ -17,11 +18,13 @@ public class LoginController {
     @FXML
     public void initialize() {
 
-        goToGame.setOnMouseClicked(e ->{
-            if(nameInput.getText().isBlank()) {
+        goToGame.setOnMouseClicked(e -> {
+            String name = nameInput.getText();
+            if (name.isBlank()) {
                 nameInput.setPromptText("Fill the box...");
                 return;
             }
+            Logic.getInstance().setPlayerName(name);
             SceneManager.setScene("/game.fxml");
         });
         goToStart.setOnMouseClicked(e -> SceneManager.setScene("/start.fxml"));

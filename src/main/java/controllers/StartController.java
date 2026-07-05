@@ -15,9 +15,7 @@ public class StartController {
 
     @FXML
     public void initialize() {
-        Platform.runLater(new Thread(() -> {
-            BackgroundMediaPlayer.getInstance().initMusic();
-        }));
+        Platform.runLater(new Thread(() -> BackgroundMediaPlayer.getInstance().initMusic()));
         goToLogin.setOnMouseClicked(e -> SceneManager.setScene("/login.fxml"));
         exitBtn.setOnMouseClicked(e -> System.exit(0));
     }

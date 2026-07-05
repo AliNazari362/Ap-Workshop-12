@@ -9,8 +9,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
@@ -21,7 +19,6 @@ import logic.ResultStatus;
 import logic.TurnStatus;
 
 import java.awt.*;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -43,6 +40,8 @@ public class GameController {
     private Button resetBtn;
 
 
+    private Timeline timerTimeLine;
+    private Timeline botTimeLine;
     private int timeReminding;
     private Logic logic;
 
@@ -57,12 +56,13 @@ public class GameController {
 
         goToHome.setOnMouseClicked(e -> {
             SceneManager.setScene("/start.fxml");
-            logic.restToDefault();
+            timerTimeLine.stop();
+            botTimeLine.stop();
         });
         timer();
         for (Node node : gridGameBox.getChildren()) {
             if (node instanceof GridPane cell) {
-                cell.setOnMouseClicked(e -> game(e));
+                cell.setOnMouseClicked(this::game);
                 cells.put(Integer.parseInt(cell.getId().substring(1)), cell);
             }
         }
@@ -71,15 +71,19 @@ public class GameController {
 
     private void configResetBtn() {
         resetBtn.setOnMouseClicked(e -> {
-            logic.restToDefault();
+            restToDefault();
             for (Node patentNode : gridGameBox.getChildren()) {
-                if(patentNode instanceof GridPane patentGrid) {
+                if (patentNode instanceof GridPane patentGrid) {
                     for (Node node : patentGrid.getChildren()) {
                         if (node instanceof Circle circle) circle.setVisible(false);
                         if (node instanceof Line line) line.setVisible(false);
-
                         timeReminding = 60;
                         timerText.setText("01:00");
+                        restToDefault();
+                        logic.startGame();
+                        updateText();
+                        timer();
+                        if (logic.getTurnStatus() == TurnStatus.BOT) game();
                     }
                 }
             }
@@ -87,22 +91,24 @@ public class GameController {
     }
 
     private void timer() {
+        if (timerTimeLine != null) timerTimeLine.stop();
+
         timeReminding = 60;
         timerText.setText("01:00");
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+
+        timerTimeLine = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             timeReminding--;
             timerText.setText("00:%02d".formatted(timeReminding));
 
             if (timeReminding <= 0) {
                 logic.setResultStatus(ResultStatus.TIME_OVER);
-                goToResult();
-                logic.restToDefault();
                 timeReminding = 60;
                 timerText.setText("01:00");
+                goToResult();
             }
         }));
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
+        timerTimeLine.setCycleCount(Timeline.INDEFINITE);
+        timerTimeLine.play();
     }
 
     private void updateText() {
@@ -111,23 +117,26 @@ public class GameController {
     }
 
     private void game() {
-        Timeline timeline = new Timeline(new KeyFrame(
+        if (logic.getTurnStatus() != TurnStatus.BOT) return;
+        if (botTimeLine != null) botTimeLine.stop();
+
+        botTimeLine = new Timeline(new KeyFrame(
                 Duration.millis(new Random().nextInt(5000)), e -> {
             int r = logic.step();
             if (r != -1) {
                 GridPane currentCell = cells.get(r);
-                setStatus(logic, currentCell);
+                setStatus(currentCell);
                 updateText();
                 if (logic.isFinished() != ResultStatus.GAMING) goToResult();
             }
         }));
-        timeline.setCycleCount(1);
-        timeline.play();
+        botTimeLine.setCycleCount(1);
+        botTimeLine.play();
     }
 
-    private void setStatus(Logic logic, GridPane cell) {
+    private void setStatus(GridPane cell) {
         for (Node node : cell.getChildren()) {
-            if (getNotation(logic) == Notation.CIRCLE) {
+            if (getNotation() == Notation.CIRCLE) {
                 if (node instanceof Circle circle) circle.setVisible(true);
             } else {
                 if (node instanceof Line line) line.setVisible(true);
@@ -135,9 +144,9 @@ public class GameController {
         }
     }
 
-    private Notation getNotation(Logic logic) {
+    private Notation getNotation() {
         Notation userNotation = logic.getNotation();
-        if (logic.getTurnStatus() == TurnStatus.YOU) {
+        if (logic.getTurnStatus() == TurnStatus.BOT) {
             return userNotation;
         } else {
             if (userNotation == Notation.CIRCLE) return Notation.LINE;
@@ -146,7 +155,12 @@ public class GameController {
     }
 
     private void goToResult() {
-        SceneManager.setScene("/result.fxml");
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            SceneManager.setScene("/result.fxml");
+            restToDefault();
+        }));
+        timeline.setCycleCount(1);
+        timeline.play();
     }
 
     private void game(MouseEvent e) {
@@ -158,10 +172,17 @@ public class GameController {
         int r = logic.step(id / 10, id % 10);
         if (r != -1) {
             GridPane currentCell = cells.get(r);
-            setStatus(logic, currentCell);
+            setStatus(currentCell);
             updateText();
             if (logic.isFinished() == ResultStatus.GAMING) game();
             else goToResult();
         }
+    }
+
+    private void restToDefault() {
+        logic.setResultStatus(ResultStatus.GAMING);
+        logic.emptyGrid();
+        timerTimeLine.stop();
+        botTimeLine.stop();
     }
 }

@@ -4,10 +4,7 @@ import java.util.Random;
 
 public class Logic {
     private static Logic INSTANCE;
-
-
     private enum CellStatus {EMPTY, YOU, BOT}
-
 
     public static Logic getInstance() {
         if (INSTANCE == null)
@@ -33,7 +30,7 @@ public class Logic {
         this.resultStatus = resultStatus;
     }
 
-    private void emptyGrid() {
+    public void emptyGrid() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 grids[i][j] = CellStatus.EMPTY;
@@ -54,8 +51,8 @@ public class Logic {
     }
 
     public void startGame() {
-        notation = random.nextInt() % 2 == 0 ? Notation.LINE : Notation.CIRCLE;
-        turnStatus = random.nextInt() % 2 == 0 ? TurnStatus.YOU : TurnStatus.BOT;
+        notation = random.nextBoolean() ? Notation.LINE : Notation.CIRCLE;
+        turnStatus = random.nextBoolean() ? TurnStatus.YOU : TurnStatus.BOT;
         resultStatus = ResultStatus.GAMING;
     }
 
@@ -139,10 +136,5 @@ public class Logic {
 
     public ResultStatus getResultStatus() {
         return resultStatus;
-    }
-
-    public void restToDefault() {
-        resultStatus = ResultStatus.GAMING;
-        emptyGrid();
     }
 }
